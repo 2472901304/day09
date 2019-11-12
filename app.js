@@ -72,6 +72,75 @@ router.post('/api/add',async ctx => {
     }
 })
 
+// 删
+router.get('/api/del', async ctx=>{
+    let {id} = ctx.query;
+    if(id || id == 0){ //
+        
+        try{
+            await query('delete from koa1 where id=?',[id])
+            ctx.body = {
+                code:1,
+                msg:'删除成功'
+            }
+        }catch(e){
+            ctx.body = {
+                code:0,
+                msg:e.error
+            }
+        }
+
+    }
+})
+
+// 修改
+router.post('/api/gai',async ctx=>{
+    let {usename,password,idcard,id} = ctx.request.body;
+
+    if(usename && password && idcard && id){
+         try{
+            await query('update koa1 set usename=?,password=?,idcard=? where id=?',[usename,password,idcard,id])
+            ctx.body = {
+                code:1,
+                msg:'修改成功'
+            }
+         } catch (e){
+             ctx.body = {
+                 code : 0,
+                 msg : e.error
+             }
+         }
+    }else{
+        ctx.body = {
+            code:2,
+            msg:'参数缺失'
+        }
+    }
+})
+
+
+// 模糊搜索
+router.get('/api/search',async ctx=>{
+    let {key}=ctx.query;
+    let sql = '';
+    if(!key){
+         sql = 'select * from koa1';
+    }else{
+        sql = `select * from koa1 where usename link '%${key}%'`;
+    }
+    try{
+       let list = await query(sql);
+       ctx.body = {
+           code:1,
+           data:list
+       }
+    }catch(e){
+        ctx.body = {
+            code:0,
+            msg:e.error
+        }
+    }
+})
 
 
 app.listen(process.env.PORT || 3000 , ()=>{
